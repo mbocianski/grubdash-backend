@@ -13,26 +13,6 @@ function list(req,res){
     res.json({data: dishes});
 }
 
-//     function propertyNameExists(req, res, next){
-//         const { data: {name, description, price, image_url} = {}, data } = req.body;
-// //check for each property and add message to error array conditions are not met
-//         const message = []
-//         if (!name) message.push("Dish must include a name");
-//         if (!description) message.push("Dish must include a description");
-//         if (!price) message.push("Dish must include a price");
-//         if (price <= 0 || isNaN(price)) message.push("Dish must have a price that is an integer greater than 0");
-//         if (!image_url ) message.push("Dish must include a image_url");
-
-//     if (message.length === 0 && data){
-//         res.locals.dish = data;
-//         return next();
-//     }
-//     next({
-//         status: 400,
-//         message: message.join(" / "), 
-//     })
-//     } 
-
 function propertyExists(property){
     return function(req, res, next){
     const { data = {} } = req.body
@@ -67,10 +47,23 @@ function dishExists(req, res, next){
     }
     next({
         status: 404,
-        message: `${dishId} does not exist`
+        message: `Dish does not exist: ${dishId} `
     })
 }
 
+function idInBodyMatches(req, res, next){
+    const {data: {id} = {}} = req.body;
+    if (id){
+        const {dishId} = req.params;
+        if (id === dishId){
+            return next()
+        }
+        next({
+            status: 400,
+            message: `Dish id does not match route id. Dish: ${id}, Route: ${dishId}`
+        });
+    } next();
+}
 
 
 function create(req,res){
@@ -91,9 +84,24 @@ function read(req, res){
     res.json({data: res.locals.dish})
 }
 
+function update(req,res){
+    const dish = res.locals.dish
+    const { data: {id, name, description, price, image_url} = {} } = req.body;
+        dish.name = name;
+        dish.description = description;
+        dish.price = price;
+        dish.image_url = image_url;
+        if (id){
+            dish.id = id
+        };
+
+    res.json({data: dish})
+}
+
 
 module.exports = {
     list,
+
     create: [
         propertyExists("name"),
         propertyExists("description"),
@@ -101,5 +109,18 @@ module.exports = {
         propertyExists("price"),
         priceIsValid,
         create],
+
     read: [dishExists, read],
+
+    update: [
+        dishExists,
+        idInBodyMatches,
+        propertyExists("name"),
+        propertyExists("description"),
+        propertyExists("image_url"),
+        propertyExists("price"),
+        priceIsValid,
+        update
+
+    ]
 }
