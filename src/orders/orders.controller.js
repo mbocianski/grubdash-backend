@@ -58,6 +58,20 @@ function dishQuantityCheck(req, res, next){
 }
 
 
+function orderExists(req, res, next){
+    const {orderId} = req.params;
+    const foundOrder = orders.find(order => order.id === orderId);
+    if (foundOrder){
+        res.locals.order = foundOrder;
+        return next();
+    }
+    next({
+        status: 404,
+        message: `Order does not exist: ${orderId} `
+    })
+}
+
+
 function create(req,res){
     const { data: {deliverTo, mobileNumber, dishes} = {}} = req.body;
     newOrder = {
@@ -71,6 +85,10 @@ function create(req,res){
      
 }
 
+function read(req,res,next){
+    res.json({data: res.locals.order})
+}
+
 
 module.exports = {
     list,
@@ -81,8 +99,8 @@ module.exports = {
         dishValidation,
         dishQuantityCheck,
         create
-
-    ]
+    ],
+    read: [orderExists, read]
 }
 
 
