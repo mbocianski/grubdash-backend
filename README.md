@@ -3,7 +3,7 @@
 
 This project is the backend of a food ordering application.
 
-I built the server using Node and Express in order to connect data to the [frontend of the project]https://github.com/Thinkful-Ed/starter-grub-dash-front-end).
+I built the server using Node and Express in order to connect data to the [frontend of the project](https://github.com/Thinkful-Ed/starter-grub-dash-front-end).
 
 You do not need to see the frontend for this project to work.
 
